@@ -1,0 +1,115 @@
+_id: replicate
+version: "2"
+title: Replicate AI nodes
+description: Provides features to use AI models from Replicate AI
+author: Anton Breslavskii | https://github.com/breslavsky
+url: https://github.com/breslavsky/piper-nodes/packages/replicate.yaml
+nodes:
+  replicate_generate_image_on_flux:
+    _id: replicate_generate_image_on_flux
+    arrange:
+      x: 300
+      y: 160
+    category: Replicate
+    environment:
+      REPLICATE_TOKEN:
+        title: Replicate token
+        type: string
+        scope: global
+        description:
+          Go to [Replicate](https://replicate.com/account/api-tokens) to take
+          a keys
+    inputs:
+      prompt:
+        type: string
+        title: Prompt
+        multiline: true
+        default: walking cat at the moon
+        required: true
+      imagesCount:
+        type: integer
+        title: Images count
+        step: 1
+        min: 1
+        max: 4
+        default: 1
+        required: true
+      aspectRatio:
+        type: string
+        title: Aspect ratio
+        enum:
+          - 1:1
+          - 16:9
+          - 21:9
+          - 3:2
+          - 2:3
+          - 4:5
+          - 5:4
+          - 3:4
+          - 4:3
+          - 9:16
+          - 9:21
+        default: 1:1
+    outputs:
+      images:
+        type: image[]
+        title: Images
+    package: replicate
+    script: >
+      const { httpClient } = imports;
+
+
+      (async () => {
+
+          const REPLICATE_TOKEN = env?.variables?.REPLICATE_TOKEN;
+          if(!REPLICATE_TOKEN) {
+              error.fatal('Please, set your API token for Replicate AI');
+          }
+
+          const { prompt, imagesCount, aspectRatio } = inputs;
+
+          if(!state) {
+              const {data: {id: task}} = await httpClient({
+                  method: 'post',
+                  url: 'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions',
+                  data: {
+                      input: {
+                          prompt,
+                          num_outputs: imagesCount,
+                          aspect_ratio: aspectRatio
+                      }
+                  },
+                  headers: {
+                      'Authorization': `Bearer ${REPLICATE_TOKEN}`,
+                      'Content-Type': 'application/json',
+                      'Prefer': 'wait',
+                  }
+              });
+              return repeat({state: {task}, delay: 2000});
+          } else {
+              const { task } = state;
+
+              const { data } = await httpClient({
+                  method: 'get',
+                  url: `https://api.replicate.com/v1/predictions/${task}`,
+                  headers: {
+                      'Authorization': `Bearer ${REPLICATE_TOKEN}`,
+                      'Content-Type': 'application/json'
+                  }
+              });
+
+              const { status, error } = data;
+              switch(status) {
+                  case 'processing':
+                      return repeat({state: {task}, delay: 3000});
+                  case 'failed':
+                      error.fatal(error);
+                  case 'succeeded':
+                  const { output: images } = data;
+                      return next({outputs: {images}});
+              }
+          }
+      })();
+    title: Generate Image on Flux
+    type: script
+    version: 4

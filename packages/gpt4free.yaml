@@ -1,0 +1,63 @@
+_id: gpt4free
+version: "1"
+title: GPT for free
+description: Free AI service providers
+nodes:
+  generate_image_using_gpt4free:
+    _id: generate_image_using_gpt4free
+    arrange:
+      x: 220
+      y: 140
+    category: Generate images
+    description: Free image generation using gpt4free
+    environment: {}
+    id: Multiply 2 numbers
+    inputs:
+      prompt:
+        type: string
+        title: Prompt
+        required: true
+        default: cat at a moon
+        multiline: true
+      model:
+        type: string
+        title: Model
+        enum:
+          - flux|Flux
+          - flux-pro|Flux Pro
+          - flux-dev|Flux Dev
+        default: flux
+    outputs:
+      image:
+        type: image
+        title: Image
+      provider:
+        type: string
+        title: Provider
+    package: gpt4free
+    script: >
+      const { httpClient } = imports;
+
+
+      (async () => {
+
+          const { prompt, model } = inputs;
+
+          const {data: {provider, data: [{ b64_json }]}} = await httpClient({
+              method: 'post',
+              url: `http://${NODE_ENV === 'test' ? '0.0.0.0' : 'gpt4free'}:1337/v1/images/generate`,
+              timeout: 20000,
+              data: {
+                  prompt,
+                  model: model || 'flux',
+                  response_format: 'b64_json'
+              },
+              headers: {
+                  'Content-Type': 'application/json',
+              }
+          });
+          return next({outputs: {image: Buffer.from(b64_json, 'base64'), provider}});
+      })();
+    title: Generate image
+    type: script
+    version: 1

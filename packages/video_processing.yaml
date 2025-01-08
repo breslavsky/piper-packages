@@ -1,0 +1,74 @@
+_id: video_processing
+version: "1"
+title: Nodes for video processing
+description: Using FFmpeg process videos
+nodes:
+  split_video_by_frames:
+    _id: split_video_by_frames
+    arrange:
+      x: 280
+      y: 120
+    category: Video processing
+    description: Using ffmpeg split video into images
+    environment: {}
+    inputs:
+      video:
+        type: video
+        title: Source video
+        required: true
+        order: 1
+      fps:
+        type: integer
+        title: Frame rate
+        min: 1
+        max: 60
+        step: 1
+        default: 12
+        order: 2
+    outputs:
+      frames:
+        type: image[]
+        title: Frames
+    package: video_processing
+    script: |-
+      const { ffmpeg, path, fs } = imports;
+
+      (async () => {
+        const { video, fps } = inputs;
+
+        const frames = [];
+
+        await useTempFolder(async (tmpFolder) => {
+          
+          const { data } = await downloadUrl(video);
+          const { ext } = await fileTypeFromBuffer(data);
+          const videoPath = path.join(tmpFolder, `source.${ext}`);
+          await fs.writeFile(videoPath, data);
+          
+          await new Promise((resolve, reject) => {
+            ffmpeg(videoPath)
+              .outputOptions([
+                `-r ${fps || 12}`,
+                '-q:v 1'
+              ])
+              .output(`${tmpFolder}/%05d.jpg`)
+              .on('start', (cmd) => log(cmd))
+              .on('end', () => resolve())
+              .on('error', (err) => reject(err))
+              .run();
+          });
+
+          const files = await fs.readdir(tmpFolder);
+          for (const file of files) {
+            if (file.endsWith('jpg')) {
+              frames.push(await fs.readFile(path.join(tmpFolder, file)));
+            }
+          }
+
+        });
+
+        return next({outputs: { frames }});
+      })()
+    title: Split video by frames
+    type: script
+    version: 1
