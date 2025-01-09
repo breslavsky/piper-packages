@@ -14,7 +14,6 @@ nodes:
     category: Generate images
     description: Free image generation using gpt4free
     environment: {}
-    id: Multiply 2 numbers
     inputs:
       prompt:
         type: string
@@ -61,6 +60,6 @@ nodes:
           });
           return next({outputs: {image: Buffer.from(b64_json, 'base64'), provider}});
       })();
-    title: Generate image
+    title: Generate image1
     type: script
     version: 1
