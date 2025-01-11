@@ -1,10 +1,10 @@
 _id: gpt4free
-version: 4
+version: 5
 title: GPT for free
 description: Free AI service providers
 author: Anton Breslavskii | https://github.com/breslavsky
 url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/gpt4free.yaml
-releaseNotes: 1. Added generate image node
+releaseNotes: Testing release v5
 nodes:
   generate_image_using_gpt4free:
     _id: generate_image_using_gpt4free
