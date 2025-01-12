@@ -1,7 +1,7 @@
 _id: gpt4free
-version: 5
+version: 6
 title: GPT for free
-description: Free AI service providers
+description: Free generative AI service providers
 author: Anton Breslavskii | https://github.com/breslavsky
 url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/gpt4free.yaml
 releaseNotes: Testing release v5
@@ -40,7 +40,6 @@ nodes:
     script: >
       const { httpClient } = imports;
 
-
       (async () => {
 
           const { prompt, model } = inputs;
@@ -60,6 +59,6 @@ nodes:
           });
           return next({outputs: {image: Buffer.from(b64_json, 'base64'), provider}});
       })();
-    title: Generate image1
+    title: Generate image
     type: script
     version: 1
