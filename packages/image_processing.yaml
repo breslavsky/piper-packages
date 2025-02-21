@@ -1,0 +1,110 @@
+_id: image_processing
+version: 1
+title: Process images
+description: Change format, resize images, etc.
+readme: The first version
+author: Anton Breslavskii | https://github.com/breslavsky
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/image_processing.yaml
+nodes:
+  resize_image:
+    _id: resize_image
+    arrange:
+      x: 410
+      y: 150
+    category:
+      id: process_images
+      title: en=Work with images;ru=Работа с изображениями
+    description: Change image size
+    inputs:
+      image:
+        type: image
+        title: Image
+        order: 1
+      width:
+        type: integer
+        title: Width
+        order: 1
+      height:
+        type: integer
+        title: Height
+        order: 2
+      fit:
+        type: string
+        title: Fit
+        enum:
+          - cover|Cover
+          - contain|Contain
+          - fill|Fill
+          - inside|Inside
+          - outside|Outside
+        default: cover
+        order: 3
+    outputs:
+      image:
+        type: image
+        title: Image
+    package: image_processing
+    script: |
+      const sharp = require('node_modules/sharp');
+
+      (async () => {
+        const { image, width, height, fit } = inputs;
+
+         const buffer = await downloadBinary(image);
+
+         const resized = await sharp(buffer)
+              .resize({
+                  width, 
+                  height,
+                  fit
+              })
+              .toBuffer();
+
+        return next({outputs: { image: resized }});
+      })();
+    source: catalog
+    title: en=Resize image;ru=Изменить размер картинки
+    type: script
+    version: 1
+  random_image:
+    _id: random_image
+    arrange:
+      x: 70
+      y: 210
+    category:
+      id: process_images
+      title: en=Work with images;ru=Работа с изображениями
+    description: en=Retrive random image;ru=Получить случайную картинку
+    inputs:
+      width:
+        type: integer
+        title: en=Width;ru=Ширина
+        required: true
+        default: 200
+        order: 1
+      height:
+        type: integer
+        title: en=Height;ru=Высота
+        order: 2
+        default: "200"
+    outputs:
+      image:
+        type: image
+        title: en=Image;ru=Изображение
+    package: image_processing
+    script: |-
+      (async () => {
+        const { width, height } = inputs;
+
+        const url = ['https://picsum.photos', width || 200];
+        if(!!height) {
+          url.push(height);
+        }
+
+         const buffer = await download(url.join('/'));
+        return next({outputs: { image: buffer }});
+      })();
+    source: catalog
+    title: en=Random image;ru=Случайная картинка
+    type: script
+    version: 1
