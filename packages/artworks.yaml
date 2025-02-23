@@ -1,0 +1,898 @@
+_id: artworks
+version: 1
+title: ArtWorks nodes
+description: Image generation, mask extraction, etc.
+readme: The first version is ready
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/artworks.yaml
+author: Anton Breslavskii | https://github.com/breslavsky
+nodes:
+  generate_image_artworks:
+    _id: generate_image_artworks
+    arrange:
+      x: 90
+      y: 110
+    category:
+      id: generate_images
+      title: en=Generate images;ru=Генерация изображений
+    costs: |-
+      const COST_PER_IMAGE = 0.02;
+      (() => {
+          const { batchSize } = inputs;
+          return batchSize * COST_PER_IMAGE;
+      })()
+    environment:
+      OPEN_PAAS_USER:
+        title: PaaS user
+        type: string
+        scope: user
+      OPEN_PAAS_PASSWORD:
+        title: PaaS password
+        type: string
+        scope: user
+      PAAS_BASE_URL:
+        title: PaaS base url
+        type: string
+        scope: user
+    groups:
+      inputs:
+        SDXL:
+          order: 2
+          title: SDXL checkpoints
+          description: Only for SDXL checkpoints
+        base:
+          order: 1
+          title: en=Base parameters;ru=Базовые параметры
+    handler: text_to_image
+    inputs:
+      checkpoint:
+        order: 2
+        title: Checkpoint
+        group: base
+        type: string
+        required: true
+        default: juggernautXL_v9Rundiffusionphoto2.safetensors
+        enum:
+          - raemuXL_v40.safetensors|Raemu XL <SDXL>
+          - aamXLAnimeMix_v10.safetensors|AAM XL (Anime Mix) <SDXL> <Fantasy>
+          - dreamweaverPony25D.1erv.safetensors|DreamWeaver - Pony 2.5D Mix <SDXL>
+          - mixGEMAdam8witQegoow.NeWz.safetensors|MyMIX-G/Jem <SDXL> <Realistic>
+          - mfcgPDXL_v10.safetensors|MFCG PDXL <SDXL>
+          - aniku_0.2.fp16.safetensors|Anime Desire <SDXL> <Fantasy>
+          - flux1DevHyperNF4Flux1DevBNB_flux1DevHyperNF4.safetensors|Hyper NF4 Flux 1 <Flux>
+          - STOIQONewrealityFLUXSD_F1DPreAlpha.safetensors|New Reality Flux <Flux>
+          - juggernautXL_v9Rundiffusionphoto2.safetensors|Juggernaut XL <SDXL>
+          - animaPencilXL_v260.safetensors|Anima Pencil XL <SDXL> <Fantasy>
+          - bluePencilXL_v401.safetensors|Blue Pencil XL <SDXL> <Fantasy>
+          - pixelArtDiffusionXL_spriteShaper.safetensors|Pixel Art Diffusion XL <SDXL> <Fantasy>
+          - albedobaseXL_v20.safetensors|AlbedoBase XL <SDXL>
+          - leosamsHelloworldXL_helloworldXL50GPT4V.safetensors|Helloworld XL <SDXL>
+          - dynavisionXLAllInOneStylized_releaseV0610Bakedvae.safetensors|DynaVision XL All In One <SDXL>
+          - photon_v1.safetensors|Photon <SD 1.5>
+          - afroditexlNudePeople_20Bkdvae.safetensors|Nude People <NSFW>
+          - nosft-float8-e4m3fn.safetensors|Flux Nude People <NSFW>
+          - asdf_0.4a_lorapov_0.2_lust_0.4.fp16.safetensors|Real Porn <NSFW>
+          - Sexy_Aesthetic_SDXL_0.4x0.2.fp16.safetensors|Sexy & Beauty <NSFW>
+          - aniku_0.2.fp16.safetensors|Anime Desire <NSFW>
+          - anikurender_0.4b.fp16.safetensors|Hardcore Fantasy <NSFW>
+      prompt:
+        order: 1
+        title: Prompt
+        group: base
+        type: string
+        required: true
+        multiline: true
+        default: cat walking on the moon
+      imageSize:
+        order: 4
+        title: Size
+        group: base
+        type: string
+        required: true
+        default: 1024x1024
+        enum:
+          - 512x512|512x512 <SD 1.5>
+          - 512x768|512x768 <SD 1.5>
+          - 512x912|512x912 <SD 1.5>
+          - 576x768|576x768 <SD 1.5>
+          - 704x1344|704x1344 <SD 1.5>
+          - 704x1408|704x1408 <SD 1.5>
+          - 768x512|768x512 <SD 1.5>
+          - 768x576|768x576 <SD 1.5>
+          - 768x768|768x768 <SD 1.5>
+          - 768x1280|768x1280 <SD 1.5>
+          - 768x1344|768x1344 <SD 1.5>
+          - 832x1152|832x1152 <SD 1.5>
+          - 832x1216|832x1216 <SD 1.5>
+          - 896x1088|896x1088 <SD 1.5>
+          - 896x1152|896x1152 <SD 1.5>
+          - 912x512|912x512 <SD 1.5>
+          - 960x1024|960x1024 <SDXL> <Flux> <SD 1.5>
+          - 960x1088|960x1088 <SDXL> <Flux> <SD 1.5>
+          - 1024x1024|1024x1024 <SDXL> <Flux> <SD 1.5>
+          - 1024x960|1024x960 <SDXL> <Flux> <SD 1.5>
+          - 1088x896|1088x896 <SDXL> <Flux> <SD 1.5>
+          - 1088x960|1088x960 <SDXL> <Flux> <SD 1.5>
+          - 1152x832|1152x832 <SDXL> <Flux> <SD 1.5>
+          - 1152x896|1152x896 <SDXL> <Flux> <SD 1.5>
+          - 1216x832|1216x832 <SDXL> <Flux>
+          - 1280x768|1280x768 <SDXL> <Flux>
+          - 1344x704|1344x704 <SDXL> <Flux>
+          - 1344x768|1344x768 <SDXL> <Flux>
+          - 1408x704|1408x704 <SDXL> <Flux>
+          - 1472x704|1472x704 <SDXL> <Flux>
+          - 1536x640|1536x640 <SDXL> <Flux>
+          - 1600x640|1600x640 <SDXL> <Flux>
+          - 1664x576|1664x576 <SDXL> <Flux>
+          - 1728x576|1728x576 <SDXL> <Flux>
+      batchSize:
+        order: 7
+        title: Batch size
+        group: base
+        type: integer
+        min: 1
+        max: 4
+        step: 1
+        default: 1
+      negativePrompt:
+        order: 3
+        title: Negative prompt
+        group: base
+        type: string
+        multiline: true
+      cfgScale:
+        order: 5
+        title: CFG scale
+        group: base
+        type: float
+        required: true
+        min: 1
+        max: 20
+        step: 1
+        default: 7
+      performance:
+        order: 6
+        title: Performance
+        group: base
+        type: string
+        default: speed
+        enum:
+          - express|⚡ Express
+          - speed|🚅 Speed
+          - quality|💎 Quality
+      styles:
+        order: 2
+        title: Styles
+        group: SDXL
+        type: string[]
+        enum:
+          - Abstract Expressionism
+          - Academia
+          - Action Figure
+          - Adorable 3D Character
+          - Adorable Kawaii
+          - Ads Advertising
+          - Ads Automotive
+          - Ads Corporate
+          - Ads Fashion Editorial
+          - Ads Food Photography
+          - Ads Gourmet Food Photography
+          - Ads Luxury
+          - Ads Real Estate
+          - Ads Retail
+          - Art Deco
+          - Art Nouveau
+          - Artstyle Abstract
+          - Artstyle Abstract Expressionism
+          - Artstyle Art Deco
+          - Artstyle Art Nouveau
+          - Artstyle Constructivist
+          - Artstyle Cubist
+          - Artstyle Expressionist
+          - Artstyle Graffiti
+          - Artstyle Hyperrealism
+          - Artstyle Impressionist
+          - Artstyle Pointillism
+          - Artstyle Pop Art
+          - Artstyle Psychedelic
+          - Artstyle Renaissance
+          - Artstyle Steampunk
+          - Artstyle Surrealist
+          - Artstyle Typography
+          - Artstyle Watercolor
+          - Astral Aura
+          - Avant Garde
+          - Baroque
+          - Bauhaus Style Poster
+          - Blueprint Schematic Drawing
+          - Caricature
+          - Cel Shaded Art
+          - Character Design Sheet
+          - Cinematic Diva
+          - Classicism Art
+          - Color Field Painting
+          - Colored Pencil Art
+          - Conceptual Art
+          - Constructivism
+          - Cubism
+          - Dadaism
+          - Dark Fantasy
+          - Dark Moody Atmosphere
+          - Dmt Art Style
+          - Doodle Art
+          - Double Exposure
+          - Dripping Paint Splatter Art
+          - Expressionism
+          - Faded Polaroid Photo
+          - Fauvism
+          - Flat 2d Art
+          - Fooocus Cinematic
+          - Fooocus Enhance
+          - Fooocus Masterpiece
+          - Fooocus Negative
+          - Fooocus Photograph
+          - Fooocus Semi Realistic
+          - Fooocus Sharp
+          - Fooocus V2
+          - Fortnite Art Style
+          - Futurism
+          - Futuristic Biomechanical
+          - Futuristic Biomechanical Cyberpunk
+          - Futuristic Cybernetic
+          - Futuristic Cybernetic Robot
+          - Futuristic Cyberpunk Cityscape
+          - Futuristic Futuristic
+          - Futuristic Retro Cyberpunk
+          - Futuristic Retro Futurism
+          - Futuristic Sci Fi
+          - Futuristic Vaporwave
+          - Game Bubble Bobble
+          - Game Cyberpunk Game
+          - Game Fighting Game
+          - Game Gta
+          - Game Mario
+          - Game Minecraft
+          - Game Pokemon
+          - Game Retro Arcade
+          - Game Retro Game
+          - Game Rpg Fantasy Game
+          - Game Strategy Game
+          - Game Streetfighter
+          - Game Zelda
+          - Glitchcore
+          - Glo Fi
+          - Googie Art Style
+          - Graffiti Art
+          - Harlem Renaissance Art
+          - High Fashion
+          - Idyllic
+          - Impressionism
+          - Infographic Drawing
+          - Ink Dripping Drawing
+          - Japanese Ink Drawing
+          - Knolling Photography
+          - Light Cheery Atmosphere
+          - Logo Design
+          - Luxurious Elegance
+          - MRE Ancient Illustration
+          - MRE Anime
+          - MRE Artistic Vision
+          - MRE Bad Dream
+          - MRE Brave Art
+          - MRE Cinematic Dynamic
+          - MRE Comic
+          - MRE Dark Cyberpunk
+          - MRE Dark Dream
+          - MRE Dynamic Illustration
+          - MRE Elemental Art
+          - MRE Gloomy Art
+          - MRE Heroic Fantasy
+          - MRE Lyrical Geometry
+          - MRE Manga
+          - MRE Space Art
+          - MRE Spontaneous Picture
+          - MRE Sumi E Detailed
+          - MRE Sumi E Symbolic
+          - MRE Surreal Painting
+          - MRE Undead Art
+          - MRE Underground
+          - Macro Photography
+          - Mandola Art
+          - Marker Drawing
+          - Medievalism
+          - Minimalism
+          - Misc Architectural
+          - Misc Disco
+          - Misc Dreamscape
+          - Misc Dystopian
+          - Misc Fairy Tale
+          - Misc Gothic
+          - Misc Grunge
+          - Misc Horror
+          - Misc Kawaii
+          - Misc Lovecraftian
+          - Misc Macabre
+          - Misc Manga
+          - Misc Metropolis
+          - Misc Minimalist
+          - Misc Monochrome
+          - Misc Nautical
+          - Misc Space
+          - Misc Stained Glass
+          - Misc Techwear Fashion
+          - Misc Tribal
+          - Misc Zentangle
+          - Mk Adnate Style
+          - Mk Afrofuturism
+          - Mk Albumen Print
+          - Mk Alcohol Ink Art
+          - Mk Andy Warhol
+          - Mk Anthotype Print
+          - Mk Aquatint Print
+          - Mk Atompunk
+          - Mk Basquiat
+          - Mk Bauhaus Style
+          - Mk Blacklight Paint
+          - Mk Bromoil Print
+          - Mk Calotype Print
+          - Mk Carnival Glass
+          - Mk Chicano Art
+          - Mk Chromolithography
+          - Mk Cibulak Porcelain
+          - Mk Color Sketchnote
+          - Mk Coloring Book
+          - Mk Constructivism
+          - Mk Cross Processing Print
+          - Mk Cross Stitching
+          - Mk Cyanotype Print
+          - Mk Dayak Art
+          - Mk De Stijl
+          - Mk Dufaycolor Photograph
+          - Mk Embroidery
+          - Mk Encaustic Paint
+          - Mk Fayum Portrait
+          - Mk Gond Painting
+          - Mk Gyotaku
+          - Mk Halftone Print
+          - Mk Herbarium
+          - Mk Illuminated Manuscript
+          - Mk Inuit Carving
+          - Mk Kalighat Painting
+          - Mk Lite Brite Art
+          - Mk Luminogram
+          - Mk Madhubani Painting
+          - Mk Mokume Gane
+          - Mk Mosaic
+          - Mk One Line Art
+          - Mk Palekh
+          - Mk Patachitra Painting
+          - Mk Pichwai Painting
+          - Mk Pictorialism
+          - Mk Pollock
+          - Mk Punk Collage
+          - Mk Ron English Style
+          - Mk Samoan Art Inspired
+          - Mk Scrimshaw
+          - Mk Shepard Fairey Style
+          - Mk Shibori
+          - Mk Singer Sargent
+          - Mk Suminagashi
+          - Mk Tlingit Art
+          - Mk Ukiyo E
+          - Mk Van Gogh
+          - Mk Vintage Airline Poster
+          - Mk Vintage Travel Poster
+          - Mk Vitreous Enamel
+          - Neo Baroque
+          - Neo Byzantine
+          - Neo Futurism
+          - Neo Impressionism
+          - Neo Rococo
+          - Neoclassicism
+          - Op Art
+          - Ornate And Intricate
+          - Papercraft Collage
+          - Papercraft Flat Papercut
+          - Papercraft Kirigami
+          - Papercraft Paper Mache
+          - Papercraft Paper Quilling
+          - Papercraft Papercut Collage
+          - Papercraft Papercut Shadow Box
+          - Papercraft Stacked Papercut
+          - Papercraft Thick Layered Papercut
+          - Pebble Art
+          - Pencil Sketch Drawing
+          - Photo Alien
+          - Photo Film Noir
+          - Photo Glamour
+          - Photo Hdr
+          - Photo Iphone Photographic
+          - Photo Long Exposure
+          - Photo Neon Noir
+          - Photo Silhouette
+          - Photo Tilt Shift
+          - Pop Art 2
+          - Random Style
+          - Rococo
+          - SAI 3D Model
+          - SAI Analog Film
+          - SAI Anime
+          - SAI Cinematic
+          - SAI Comic Book
+          - SAI Craft Clay
+          - SAI Digital Art
+          - SAI Enhance
+          - SAI Fantasy Art
+          - SAI Isometric
+          - SAI Line Art
+          - SAI Lowpoly
+          - SAI Neonpunk
+          - SAI Origami
+          - SAI Photographic
+          - SAI Pixel Art
+          - SAI Texture
+          - Silhouette Art
+          - Simple Vector Art
+          - Sketchup
+          - Steampunk 2
+          - Sticker Designs
+          - Suprematism
+          - Surrealism
+          - Terragen
+          - Tranquil Relaxing Atmosphere
+          - Vibrant Rim Light
+          - Volumetric Lighting
+          - Watercolor 2
+          - Whimsical And Playful
+      sharpness:
+        order: 1
+        title: Sharpness
+        group: SDXL
+        type: integer
+        min: 0
+        max: 30
+        step: 1
+        default: 2
+      seed:
+        order: 8
+        title: Seed
+        group: base
+        type: integer
+        placeholder: no seed
+    outputs:
+      image:
+        title: Image
+        type: image
+      images:
+        title: Images
+        type: image[]
+    package: artworks
+    script: |-
+      const PAAS_BASE_URL = env.variables.get('PAAS_BASE_URL');
+      if(!PAAS_BASE_URL) {
+          error.fatal('Please, set PAAS_BASE_URL in environment');
+      }
+      const OPEN_PAAS_USER = env.variables.get('OPEN_PAAS_USER');
+      if(!OPEN_PAAS_USER) {
+          error.fatal('Please, set OPEN_PAAS_USER in environment');
+      }
+      const OPEN_PAAS_PASSWORD = env.variables.get('OPEN_PAAS_PASSWORD');
+      if(!OPEN_PAAS_PASSWORD) {
+          error.fatal('Please, set OPEN_PAAS_PASSWORD in environment');
+      }
+      const PAAS_AUTH = {
+          username: OPEN_PAAS_USER,
+          password: OPEN_PAAS_PASSWORD
+      };
+      const CHECK_TASK_INTERVAL = 3000;
+
+      function getUrl(path) {
+          return `${PAAS_BASE_URL}/api/v3/${path}`;
+      }
+
+      async function createTask(payload) {
+
+          try {
+              const response = await httpClient({
+                  method: "post",
+                  url: getUrl("tasks"),
+                  headers: {
+                      "Content-type": "application/json",
+                  },
+                  auth: PAAS_AUTH,
+                  data: JSON.stringify(payload),
+              });
+              const {
+                  id
+              } = response.data;
+              return id;
+          } catch (e) {
+              const {
+                  errors
+              } = e.response?.data;
+              if (errors?.length > 0) {
+                  error.data(errors.join(", "));
+              }
+              error.fatal(e.statusText);
+          }
+      }
+
+      async function cancelTask(id) {
+          log(`Cancel task ${id}`);
+          try {
+              await httpClient({
+                  method: "post",
+                  url: getUrl(`tasks/${id}/cancel`),
+                  headers: {
+                      "Content-type": "application/json",
+                  },
+                  auth: PAAS_AUTH,
+              });
+          } catch (e) {
+              const {
+                  errors
+              } = e.response?.data;
+              if (errors?.length > 0) {
+                  logger.error(errors.join(", "));
+                  error.data(errors.join(", "));
+              }
+              error.fatal(e.statusText);
+          }
+      }
+
+      async function checkState(id) {
+          const {
+              data
+          } = await httpClient({
+              method: "get",
+              url: getUrl(`tasks/${id}`),
+              headers: {
+                  "Content-type": "application/json",
+              },
+              auth: PAAS_AUTH,
+          });
+
+          const {
+              status,
+              results
+          } = data;
+          switch (status) {
+              case "preparing":
+              case "scheduling":
+              case "scheduled":
+              case "pending":
+              case "processing":
+                  return null;
+              case "completed":
+                  const {
+                      data
+                  } = results;
+                  return data;
+              case "failed":
+                  const {
+                      error
+                  } = results;
+                  error.fatal(error);
+              default:
+                  error.fatal("Wrong task status");
+          }
+      }
+
+      (async () => {
+
+          const {
+              prompt,
+              negativePrompt,
+              checkpoint,
+              cfgScale,
+              imageSize: size,
+              performance,
+              sharpness,
+              seed,
+              batchSize,
+              // SDXL
+              styles,
+          } = inputs;
+
+          if (!state) {
+              const payload = {
+                  type: "text-to-image",
+                  isFast: true,
+                  payload: {
+                      base64: false,
+                      prompt,
+                      ...(!!negativePrompt ? {
+                          negativePrompt
+                      } : {}),
+                      checkpoint,
+                      cfgScale,
+                      size,
+                      ...(performance !== "speed" ? {
+                          performance
+                      } : {}),
+                      ...(seed > 0 ? {
+                          seed
+                      } : {}),
+                      ...(batchSize > 1 ? {
+                          batchSize
+                      } : {}),
+                      // SDXL
+                      ...(styles?.length > 0 ? {
+                          styles
+                      } : {}),
+                      ...(sharpness > 2 ? {
+                          sharpness
+                      } : {}),
+                  },
+              };
+              const task = await createTask(payload);
+              log(`Task created ${task}`);
+              return repeat({
+                  state: {
+                      payload,
+                      task,
+                      attempt: 0,
+                      startedAt: new Date()
+                  },
+                  delay: 5000
+              });
+          } else {
+              const {
+                  payload,
+                  task,
+                  attempt,
+                  startedAt
+              } = state;
+              if (attempt > 200) {
+                  await cancelTask(task);
+
+                  const now = new Date();
+                  const time = (now - new Date(startedAt)) / 1000;
+                  error.timeout(`PaaS task for text to image ${task} timeout in ${time} sec`);
+              }
+
+              log(`Check task ${attempt} ${task}`);
+              const results = await checkState(task);
+              if (!results) {
+                  return repeat({
+                      delay: CHECK_TASK_INTERVAL,
+                      state: {
+                          payload,
+                          task,
+                          attempt: attempt + 1,
+                          startedAt,
+                      },
+                  });
+              }
+              let images = results.images.map((i) => i.url);
+              const [image] = images;
+              return next({
+                  outputs: {
+                      images,
+                      image: image
+                  }
+              });
+          }
+
+      })();
+    source: catalog
+    title: en=Generate image;ru=Генерация изображения
+    version: 1
+  remove_background_artworks:
+    _id: remove_background_artworks
+    arrange:
+      x: 530
+      y: 200
+    category:
+      id: generate_images
+      title: en=Remove background;ru=Удаление фона
+    environment:
+      OPEN_PAAS_USER:
+        title: PaaS user
+        type: string
+        scope: user
+      OPEN_PAAS_PASSWORD:
+        title: PaaS password
+        type: string
+        scope: user
+      PAAS_BASE_URL:
+        title: PaaS base url
+        type: string
+        scope: user
+    inputs:
+      image:
+        order: 1
+        title: Image
+        type: image
+        required: true
+      model:
+        order: 2
+        title: Model
+        type: string
+        required: true
+        default: isnet-general-use
+        enum:
+          - isnet-general-use|IsNet
+          - u2net|U2Net
+    outputs:
+      image:
+        title: Image
+        type: image
+    package: artworks
+    script: |-
+      const PAAS_BASE_URL = env.variables.get('PAAS_BASE_URL');
+      if(!PAAS_BASE_URL) {
+          error.fatal('Please, set PAAS_BASE_URL in environment');
+      }
+      const OPEN_PAAS_USER = env.variables.get('OPEN_PAAS_USER');
+      if(!OPEN_PAAS_USER) {
+          error.fatal('Please, set OPEN_PAAS_USER in environment');
+      }
+      const OPEN_PAAS_PASSWORD = env.variables.get('OPEN_PAAS_PASSWORD');
+      if(!OPEN_PAAS_PASSWORD) {
+          error.fatal('Please, set OPEN_PAAS_PASSWORD in environment');
+      }
+      const PAAS_AUTH = {
+          username: OPEN_PAAS_USER,
+          password: OPEN_PAAS_PASSWORD
+      };
+      const CHECK_TASK_INTERVAL = 3000;
+
+      function getUrl(path) {
+          return `${PAAS_BASE_URL}/api/v3/${path}`;
+      }
+
+      async function createTask(payload) {
+          try {
+              const response = await httpClient({
+                  method: "post",
+                  url: getUrl("tasks"),
+                  headers: {
+                      "Content-type": "application/json",
+                  },
+                  auth: PAAS_AUTH,
+                  data: JSON.stringify(payload),
+              });
+              const {
+                  id
+              } = response.data;
+              return id;
+          } catch (e) {
+              const {
+                  errors
+              } = e.response?.data || {};
+              if (errors?.length > 0) {
+                  error.fatal(errors.join(", "));
+              }
+              error.fatal(e.statusText);
+          }
+      }
+
+      async function cancelTask(id) {
+          log(`Cancel task ${id}`);
+          try {
+              await httpClient({
+                  method: "post",
+                  url: getUrl(`tasks/${id}/cancel`),
+                  headers: {
+                      "Content-type": "application/json",
+                  },
+                  auth: PAAS_AUTH,
+              });
+              logger.debug(`Cancel task ${id}`);
+          } catch (e) {
+              const {
+                  errors
+              } = e.response?.data;
+              if (errors?.length > 0) {
+                  error.fatal(errors.join(", "));
+              }
+              error.fatal(e.statusText);
+          }
+      }
+
+      async function checkState(id) {
+          const {
+              data
+          } = await httpClient({
+              method: "get",
+              url: getUrl(`tasks/${id}`),
+              headers: {
+                  "Content-type": "application/json",
+              },
+              auth: PAAS_AUTH,
+          });
+
+          const {
+              status,
+              results
+          } = data;
+          switch (status) {
+              case "preparing":
+              case "scheduling":
+              case "scheduled":
+              case "pending":
+              case "processing":
+                  return null;
+              case "completed":
+                  const {
+                      data
+                  } = results;
+                  return data;
+              case "failed":
+                  const {
+                      error
+                  } = results;
+                  error.fatal(error);
+              default:
+                  error.fatal("Wrong task status");
+          }
+      }
+
+      (async () => {
+
+          const {
+              image,
+              model,
+          } = inputs;
+
+          if (!state) {
+              const payload = {
+                  type: "remove-image-background",
+                  isFast: true,
+                  payload: {
+                      base64: false,
+                      model,
+                      image,
+                  },
+              };
+              const task = await createTask(payload);
+              log(`Task created ${task}`);
+              return repeat({
+                  state: {
+                      payload,
+                      task,
+                      attempt: 0,
+                      startedAt: new Date()
+                  },
+                  delay: 5000
+              });
+          } else {
+              const {
+                  payload,
+                  task,
+                  attempt,
+                  startedAt
+              } = state;
+              if (attempt > 200) {
+                  await cancelTask(task);
+
+                  const now = new Date();
+                  const time = (now - new Date(startedAt)) / 1000;
+                  error.timeout(`PaaS task for text to image ${task} timeout in ${time} sec`);
+              }
+
+              log(`Check task ${attempt} ${task}`);
+              const results = await checkState(task);
+              if (!results) {
+                  return repeat({
+                      delay: CHECK_TASK_INTERVAL,
+                      state: {
+                          payload,
+                          task,
+                          attempt: attempt + 1,
+                          startedAt,
+                      },
+                  });
+              }
+              let { image: {url: image} } = results;
+              return next({
+                  outputs: {
+                      image
+                  }
+              });
+          }
+
+      })();
+    source: catalog
+    title: Remove background
+    version: 1

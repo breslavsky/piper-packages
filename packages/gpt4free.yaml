@@ -3,7 +3,7 @@ version: 6
 title: GPT for free
 description: Free generative AI service providers
 author: Anton Breslavskii | https://github.com/breslavsky
-url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/gpt4free.yaml
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/gpt4free.yaml
 readme: Testing release v5
 nodes:
   generate_image_using_gpt4free:

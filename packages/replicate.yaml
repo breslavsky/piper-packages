@@ -3,7 +3,7 @@ version: "2"
 title: Replicate AI nodes
 description: Provides features to use AI models from Replicate AI
 author: Anton Breslavskii | https://github.com/breslavsky
-url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/replicate.yaml
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/replicate.yaml
 readme: Add generating images in Flux
 nodes:
   replicate_generate_image_on_flux:

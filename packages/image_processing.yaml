@@ -1,6 +1,6 @@
 _id: image_processing
 version: 1
-title: Process images
+title: en=Process images;ru=Обработка изображений
 description: Change format, resize images, etc.
 readme: The first version
 author: Anton Breslavskii | https://github.com/breslavsky
