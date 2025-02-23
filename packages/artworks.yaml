@@ -3,7 +3,7 @@ version: 1
 title: ArtWorks nodes
 description: Image generation, mask extraction, etc.
 readme: The first version is ready
-url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/artworks.yaml
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/artworks.yaml
 author: Anton Breslavskii | https://github.com/breslavsky
 nodes:
   generate_image_artworks:
