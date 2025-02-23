@@ -5,229 +5,6 @@ title: ArtWorks nodes
 url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/artworks.yaml
 version: 2
 nodes:
-  remove_background_artworks:
-    _id: remove_background_artworks
-    arrange:
-      x: 530
-      y: 200
-    category:
-      id: generate_images
-      title: en=Remove background;ru=Удаление фона
-    environment:
-      OPEN_PAAS_USER:
-        title: PaaS user
-        type: string
-        scope: user
-      OPEN_PAAS_PASSWORD:
-        title: PaaS password
-        type: string
-        scope: user
-      PAAS_BASE_URL:
-        title: PaaS base url
-        type: string
-        scope: user
-    inputs:
-      image:
-        order: 1
-        title: Image
-        type: image
-        required: true
-      model:
-        order: 2
-        title: Model
-        type: string
-        required: true
-        default: isnet-general-use
-        enum:
-          - isnet-general-use|IsNet
-          - u2net|U2Net
-    outputs:
-      image:
-        title: Image
-        type: image
-    package: artworks
-    script: |-
-      const PAAS_BASE_URL = env.variables.get('PAAS_BASE_URL');
-      if(!PAAS_BASE_URL) {
-          error.fatal('Please, set PAAS_BASE_URL in environment');
-      }
-      const OPEN_PAAS_USER = env.variables.get('OPEN_PAAS_USER');
-      if(!OPEN_PAAS_USER) {
-          error.fatal('Please, set OPEN_PAAS_USER in environment');
-      }
-      const OPEN_PAAS_PASSWORD = env.variables.get('OPEN_PAAS_PASSWORD');
-      if(!OPEN_PAAS_PASSWORD) {
-          error.fatal('Please, set OPEN_PAAS_PASSWORD in environment');
-      }
-      const PAAS_AUTH = {
-          username: OPEN_PAAS_USER,
-          password: OPEN_PAAS_PASSWORD
-      };
-      const CHECK_TASK_INTERVAL = 3000;
-
-      function getUrl(path) {
-          return `${PAAS_BASE_URL}/api/v3/${path}`;
-      }
-
-      async function createTask(payload) {
-          try {
-              const response = await httpClient({
-                  method: "post",
-                  url: getUrl("tasks"),
-                  headers: {
-                      "Content-type": "application/json",
-                  },
-                  auth: PAAS_AUTH,
-                  data: JSON.stringify(payload),
-              });
-              const {
-                  id
-              } = response.data;
-              return id;
-          } catch (e) {
-              const {
-                  errors
-              } = e.response?.data || {};
-              if (errors?.length > 0) {
-                  error.fatal(errors.join(", "));
-              }
-              error.fatal(e.statusText);
-          }
-      }
-
-      async function cancelTask(id) {
-          log(`Cancel task ${id}`);
-          try {
-              await httpClient({
-                  method: "post",
-                  url: getUrl(`tasks/${id}/cancel`),
-                  headers: {
-                      "Content-type": "application/json",
-                  },
-                  auth: PAAS_AUTH,
-              });
-              logger.debug(`Cancel task ${id}`);
-          } catch (e) {
-              const {
-                  errors
-              } = e.response?.data;
-              if (errors?.length > 0) {
-                  error.fatal(errors.join(", "));
-              }
-              error.fatal(e.statusText);
-          }
-      }
-
-      async function checkState(id) {
-          const {
-              data
-          } = await httpClient({
-              method: "get",
-              url: getUrl(`tasks/${id}`),
-              headers: {
-                  "Content-type": "application/json",
-              },
-              auth: PAAS_AUTH,
-          });
-
-          const {
-              status,
-              results
-          } = data;
-          switch (status) {
-              case "preparing":
-              case "scheduling":
-              case "scheduled":
-              case "pending":
-              case "processing":
-                  return null;
-              case "completed":
-                  const {
-                      data
-                  } = results;
-                  return data;
-              case "failed":
-                  const {
-                      error
-                  } = results;
-                  error.fatal(error);
-              default:
-                  error.fatal("Wrong task status");
-          }
-      }
-
-      (async () => {
-
-          const {
-              image,
-              model,
-          } = inputs;
-
-          if (!state) {
-              const payload = {
-                  type: "remove-image-background",
-                  isFast: true,
-                  payload: {
-                      base64: false,
-                      model,
-                      image,
-                  },
-              };
-              const task = await createTask(payload);
-              log(`Task created ${task}`);
-              return repeat({
-                  state: {
-                      payload,
-                      task,
-                      attempt: 0,
-                      startedAt: new Date()
-                  },
-                  delay: 5000
-              });
-          } else {
-              const {
-                  payload,
-                  task,
-                  attempt,
-                  startedAt
-              } = state;
-              if (attempt > 200) {
-                  await cancelTask(task);
-
-                  const now = new Date();
-                  const time = (now - new Date(startedAt)) / 1000;
-                  error.timeout(`PaaS task for text to image ${task} timeout in ${time} sec`);
-              }
-
-              log(`Check task ${attempt} ${task}`);
-              const results = await checkState(task);
-              if (!results) {
-                  return repeat({
-                      delay: CHECK_TASK_INTERVAL,
-                      state: {
-                          payload,
-                          task,
-                          attempt: attempt + 1,
-                          startedAt,
-                      },
-                  });
-              }
-              let { image: {url: image} } = results;
-              return next({
-                  outputs: {
-                      image
-                  }
-              });
-          }
-
-      })();
-    source: catalog
-    title: Remove background
-    version: 1
-    catalog: null
-    costs: null
-    groups: null
-    handler: null
   generate_image_artworks:
     _id: generate_image_artworks
     arrange:
@@ -898,4 +675,223 @@ nodes:
       })();
     source: catalog
     title: en=Generate image;ru=Генерация изображения
+    version: 1
+  remove_background_artworks:
+    _id: remove_background_artworks
+    arrange:
+      x: 530
+      y: 200
+    category:
+      id: generate_images
+      title: en=Remove background;ru=Удаление фона
+    environment:
+      OPEN_PAAS_USER:
+        title: PaaS user
+        type: string
+        scope: user
+      OPEN_PAAS_PASSWORD:
+        title: PaaS password
+        type: string
+        scope: user
+      PAAS_BASE_URL:
+        title: PaaS base url
+        type: string
+        scope: user
+    inputs:
+      image:
+        order: 1
+        title: Image
+        type: image
+        required: true
+      model:
+        order: 2
+        title: Model
+        type: string
+        required: true
+        default: isnet-general-use
+        enum:
+          - isnet-general-use|IsNet
+          - u2net|U2Net
+    outputs:
+      image:
+        title: Image
+        type: image
+    package: artworks
+    script: |-
+      const PAAS_BASE_URL = env.variables.get('PAAS_BASE_URL');
+      if(!PAAS_BASE_URL) {
+          error.fatal('Please, set PAAS_BASE_URL in environment');
+      }
+      const OPEN_PAAS_USER = env.variables.get('OPEN_PAAS_USER');
+      if(!OPEN_PAAS_USER) {
+          error.fatal('Please, set OPEN_PAAS_USER in environment');
+      }
+      const OPEN_PAAS_PASSWORD = env.variables.get('OPEN_PAAS_PASSWORD');
+      if(!OPEN_PAAS_PASSWORD) {
+          error.fatal('Please, set OPEN_PAAS_PASSWORD in environment');
+      }
+      const PAAS_AUTH = {
+          username: OPEN_PAAS_USER,
+          password: OPEN_PAAS_PASSWORD
+      };
+      const CHECK_TASK_INTERVAL = 3000;
+
+      function getUrl(path) {
+          return `${PAAS_BASE_URL}/api/v3/${path}`;
+      }
+
+      async function createTask(payload) {
+          try {
+              const response = await httpClient({
+                  method: "post",
+                  url: getUrl("tasks"),
+                  headers: {
+                      "Content-type": "application/json",
+                  },
+                  auth: PAAS_AUTH,
+                  data: JSON.stringify(payload),
+              });
+              const {
+                  id
+              } = response.data;
+              return id;
+          } catch (e) {
+              const {
+                  errors
+              } = e.response?.data || {};
+              if (errors?.length > 0) {
+                  error.fatal(errors.join(", "));
+              }
+              error.fatal(e.statusText);
+          }
+      }
+
+      async function cancelTask(id) {
+          log(`Cancel task ${id}`);
+          try {
+              await httpClient({
+                  method: "post",
+                  url: getUrl(`tasks/${id}/cancel`),
+                  headers: {
+                      "Content-type": "application/json",
+                  },
+                  auth: PAAS_AUTH,
+              });
+              logger.debug(`Cancel task ${id}`);
+          } catch (e) {
+              const {
+                  errors
+              } = e.response?.data;
+              if (errors?.length > 0) {
+                  error.fatal(errors.join(", "));
+              }
+              error.fatal(e.statusText);
+          }
+      }
+
+      async function checkState(id) {
+          const {
+              data
+          } = await httpClient({
+              method: "get",
+              url: getUrl(`tasks/${id}`),
+              headers: {
+                  "Content-type": "application/json",
+              },
+              auth: PAAS_AUTH,
+          });
+
+          const {
+              status,
+              results
+          } = data;
+          switch (status) {
+              case "preparing":
+              case "scheduling":
+              case "scheduled":
+              case "pending":
+              case "processing":
+                  return null;
+              case "completed":
+                  const {
+                      data
+                  } = results;
+                  return data;
+              case "failed":
+                  const {
+                      error
+                  } = results;
+                  error.fatal(error);
+              default:
+                  error.fatal("Wrong task status");
+          }
+      }
+
+      (async () => {
+
+          const {
+              image,
+              model,
+          } = inputs;
+
+          if (!state) {
+              const payload = {
+                  type: "remove-image-background",
+                  isFast: true,
+                  payload: {
+                      base64: false,
+                      model,
+                      image,
+                  },
+              };
+              const task = await createTask(payload);
+              log(`Task created ${task}`);
+              return repeat({
+                  state: {
+                      payload,
+                      task,
+                      attempt: 0,
+                      startedAt: new Date()
+                  },
+                  delay: 5000
+              });
+          } else {
+              const {
+                  payload,
+                  task,
+                  attempt,
+                  startedAt
+              } = state;
+              if (attempt > 200) {
+                  await cancelTask(task);
+
+                  const now = new Date();
+                  const time = (now - new Date(startedAt)) / 1000;
+                  error.timeout(`PaaS task for text to image ${task} timeout in ${time} sec`);
+              }
+
+              log(`Check task ${attempt} ${task}`);
+              const results = await checkState(task);
+              if (!results) {
+                  return repeat({
+                      delay: CHECK_TASK_INTERVAL,
+                      state: {
+                          payload,
+                          task,
+                          attempt: attempt + 1,
+                          startedAt,
+                      },
+                  });
+              }
+              let { image: {url: image} } = results;
+              return next({
+                  outputs: {
+                      image
+                  }
+              });
+          }
+
+      })();
+    source: catalog
+    title: Remove background
     version: 1
