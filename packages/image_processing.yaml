@@ -1,10 +1,10 @@
 _id: image_processing
-version: 2
+version: 1
 title: en=Process images;ru=Обработка изображений
 description: Change format, resize images, etc.
-readme: Fix generate image  node
+readme: The first version
 author: Anton Breslavskii | https://github.com/breslavsky
-url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/image_processing.yaml
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/image_processing.yaml
 nodes:
   resize_image:
     _id: resize_image
@@ -14,35 +14,37 @@ nodes:
     category:
       id: process_images
       title: en=Work with images;ru=Работа с изображениями
-    description: Change image size
     inputs:
       image:
-        type: image
+        order: 1
         title: Image
-        order: 1
+        type: image
+        required: true
       width:
-        type: integer
-        title: Width
-        order: 1
-      height:
-        type: integer
-        title: Height
         order: 2
+        title: Width
+        type: integer
+        default: 200
+      height:
+        order: 3
+        title: Height
+        type: integer
+        default: 200
       fit:
-        type: string
+        order: 4
         title: Fit
+        type: string
+        default: cover
         enum:
           - cover|Cover
           - contain|Contain
           - fill|Fill
           - inside|Inside
           - outside|Outside
-        default: cover
-        order: 3
     outputs:
       image:
-        type: image
         title: Image
+        type: image
     package: image_processing
     script: |
       const sharp = require('node_modules/sharp');
@@ -50,9 +52,8 @@ nodes:
       (async () => {
         const { image, width, height, fit } = inputs;
 
-         const buffer = await downloadBinary(image);
-
-         const resized = await sharp(buffer)
+         const { data } = await download(image);
+         const resized = await sharp(data)
               .resize({
                   width, 
                   height,
@@ -64,47 +65,54 @@ nodes:
       })();
     source: catalog
     title: en=Resize image;ru=Изменить размер картинки
-    type: script
     version: 1
   random_image:
     _id: random_image
     arrange:
-      x: 70
-      y: 210
+      x: 80
+      y: 150
     category:
       id: process_images
       title: en=Work with images;ru=Работа с изображениями
-    description: en=Retrive random image;ru=Получить случайную картинку
+    environment: {}
     inputs:
       width:
-        type: integer
-        title: en=Width;ru=Ширина
-        required: true
-        default: 200
         order: 1
-      height:
+        title: en=Width;ru=Ширина
         type: integer
-        title: en=Height;ru=Высота
+        required: true
+        placeholder: "200"
+        default: 200
+      height:
         order: 2
-        default: "200"
+        title: en=Height;ru=Высота
+        type: integer
+        placeholder: "200"
+        default: 200
     outputs:
       image:
-        type: image
         title: en=Image;ru=Изображение
+        type: image
     package: image_processing
     script: |-
       (async () => {
-        const { width, height } = inputs;
+          const {
+              width,
+              height
+          } = inputs;
 
-        const url = ['https://picsum.photos', width || 200];
-        if(!!height) {
-          url.push(height);
-        }
+          const url = ['https://picsum.photos', width || 200];
+          if (!!height) {
+              url.push(height);
+          }
 
-         const buffer = await download(url.join('/'));
-        return next({outputs: { image: buffer }});
+          const { data: image } = await download(url.join('/'));
+          return next({
+              outputs: {
+                  image
+              }
+          });
       })();
     source: catalog
     title: en=Random image;ru=Случайная картинка
-    type: script
     version: 1

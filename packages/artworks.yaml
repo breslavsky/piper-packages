@@ -1,40 +1,40 @@
 _id: artworks
 description: Image generation, mask extraction, etc.
 readme: The first version is ready
-title: ArtWorks nodes
+title: en=ArtWorks AI;ru=Узлы ArtWorks AI
 url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/artworks.yaml
 version: 2
 nodes:
   remove_background_artworks:
     _id: remove_background_artworks
     arrange:
-      x: 530
-      y: 200
+      x: 500
+      y: 110
     category:
-      id: generate_images
-      title: en=Remove background;ru=Удаление фона
+      id: analyze_images
+      title: en=Image analysis;ru=Анализ изображений
     environment:
       OPEN_PAAS_USER:
         title: PaaS user
         type: string
-        scope: user
+        scope: global
       OPEN_PAAS_PASSWORD:
         title: PaaS password
         type: string
-        scope: user
+        scope: global
       PAAS_BASE_URL:
         title: PaaS base url
         type: string
-        scope: user
+        scope: global
     inputs:
       image:
         order: 1
-        title: Image
+        title: en=Image;ru=Изображение
         type: image
         required: true
       model:
         order: 2
-        title: Model
+        title: en=Model;ru=Модель
         type: string
         required: true
         default: isnet-general-use
@@ -43,7 +43,7 @@ nodes:
           - u2net|U2Net
     outputs:
       image:
-        title: Image
+        title: en=Image;ru=Изображение
         type: image
     package: artworks
     script: |-
@@ -147,10 +147,7 @@ nodes:
                   } = results;
                   return data;
               case "failed":
-                  const {
-                      error
-                  } = results;
-                  error.fatal(error);
+                  error.fatal(results.error);
               default:
                   error.fatal("Wrong task status");
           }
@@ -222,12 +219,12 @@ nodes:
 
       })();
     source: catalog
-    title: Remove background
+    title: en=Remove background;ru=Удалить фон
     version: 1
   generate_image_artworks:
     _id: generate_image_artworks
     arrange:
-      x: 90
+      x: 170
       y: 110
     category:
       id: generate_images
@@ -242,15 +239,15 @@ nodes:
       OPEN_PAAS_USER:
         title: PaaS user
         type: string
-        scope: user
+        scope: global
       OPEN_PAAS_PASSWORD:
         title: PaaS password
         type: string
-        scope: user
+        scope: global
       PAAS_BASE_URL:
         title: PaaS base url
         type: string
-        scope: user
+        scope: global
     groups:
       inputs:
         SDXL:

@@ -1,37 +1,43 @@
 _id: video_processing
-version: "1"
-title: Nodes for video processing
+version: 1
+title: en=Video processing;ru=Работа с видео
 description: Using FFmpeg process videos
+readme: ""
 nodes:
   split_video_by_frames:
     _id: split_video_by_frames
     arrange:
       x: 280
-      y: 120
-    category: Video processing
-    description: Using ffmpeg split video into images
+      y: 110
+    category:
+      id: split_video_by_frames
+      title: en=Video processing;ru=Обработка видео
+    costs: ""
     environment: {}
     inputs:
       video:
-        type: video
-        title: Source video
-        required: true
         order: 1
+        title: Source video
+        type: video
+        required: true
       fps:
-        type: integer
+        order: 2
         title: Frame rate
+        type: integer
         min: 1
         max: 60
         step: 1
         default: 12
-        order: 2
     outputs:
       frames:
-        type: image[]
         title: Frames
+        type: image[]
     package: video_processing
     script: |-
-      const { ffmpeg, path, fs } = imports;
+      const ffmpeg = require('fluent-ffmpeg');
+      const path = require('path');
+      const fs = require('fs/promises');
+      const { fileTypeFromBuffer } = require('file-type');
 
       (async () => {
         const { video, fps } = inputs;
@@ -40,7 +46,7 @@ nodes:
 
         await useTempFolder(async (tmpFolder) => {
           
-          const { data } = await downloadUrl(video);
+          const { data } = await download(video);
           const { ext } = await fileTypeFromBuffer(data);
           const videoPath = path.join(tmpFolder, `source.${ext}`);
           await fs.writeFile(videoPath, data);
@@ -68,7 +74,7 @@ nodes:
         });
 
         return next({outputs: { frames }});
-      })()
-    title: Split video by frames
-    type: script
-    version: 1
+      })();
+    source: catalog
+    title: en=Split video by frames;ru=Разбить видео по кадрам
+    version: 6

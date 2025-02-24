@@ -1,68 +1,75 @@
 _id: replicate
-version: "2"
-title: Replicate AI nodes
+version: 4
+title: Replicate AI
 description: Provides features to use AI models from Replicate AI
 author: Anton Breslavskii | https://github.com/breslavsky
 url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/replicate.yaml
-readme: Add generating images in Flux
+releaseNotes: ""
+readme: ""
 nodes:
-  replicate_generate_image_on_flux:
-    _id: replicate_generate_image_on_flux
+  generate_on_flux_replicate:
+    _id: generate_on_flux_replicate
     arrange:
       x: 300
-      y: 160
-    category: Replicate
+      y: 120
+    category:
+      id: generate_images
+      title: en=Generate images;ru=Генерация изображений
+    costs: |-
+      const COST_PER_IMAGE = 0.01;
+      (() => {
+          const { imagesCount } = inputs;
+          return imagesCount * COST_PER_IMAGE;
+      })()
     environment:
       REPLICATE_TOKEN:
         title: Replicate token
+        description: Go to [Replicate](https://replicate.com/account/api-tokens) to take a keys
         type: string
         scope: global
-        description:
-          Go to [Replicate](https://replicate.com/account/api-tokens) to take
-          a keys
     inputs:
       prompt:
+        order: 1
+        title: en=Prompt;ru=Подсказка
         type: string
-        title: Prompt
+        required: true
         multiline: true
         default: walking cat at the moon
-        required: true
       imagesCount:
+        order: 2
+        title: en=Images count;ru=Кол-во
         type: integer
-        title: Images count
-        step: 1
+        required: true
         min: 1
         max: 4
+        step: 1
         default: 1
-        required: true
       aspectRatio:
+        order: 3
+        title: en=Aspect ratio;ru=Размер
         type: string
-        title: Aspect ratio
+        default: 1:1
         enum:
           - 1:1
-          - 16:9
           - 21:9
+          - 16:9
           - 3:2
           - 2:3
           - 4:5
           - 5:4
           - 3:4
           - 4:3
-          - 9:16
           - 9:21
-        default: 1:1
+          - 9:16
     outputs:
       images:
-        type: image[]
         title: Images
+        type: image[]
     package: replicate
-    script: >
-      const { httpClient } = imports;
-
-
+    script: |
       (async () => {
 
-          const REPLICATE_TOKEN = env?.variables?.REPLICATE_TOKEN;
+          const REPLICATE_TOKEN = env?.variables?.get('REPLICATE_TOKEN');
           if(!REPLICATE_TOKEN) {
               error.fatal('Please, set your API token for Replicate AI');
           }
@@ -111,6 +118,6 @@ nodes:
               }
           }
       })();
-    title: Generate Image on Flux
-    type: script
-    version: 4
+    source: catalog
+    title: en=Generate on Flux;ru=Генерация Flux
+    version: 5
