@@ -1,0 +1,81 @@
+_id: anthropic
+description: Ask Claude agent
+readme: The first base version
+title: Anthropic
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/anthropic.yaml
+version: 1
+nodes:
+  ask_claude:
+    _id: ask_claude
+    arrange:
+      x: 140
+      y: 90
+    category:
+      id: llm_agents
+      title: en=Language Agents;ru=Языковые агенты
+    environment:
+      ANTHROPIC_API_KEY:
+        title: Anthropic API key
+        type: string
+        scope: global
+    inputs:
+      question:
+        order: 2
+        title: en=Question;ru=Вопрос
+        type: string
+        required: true
+        multiline: true
+      model:
+        order: 2
+        title: en=Model;ru=Модель
+        type: string
+        required: true
+        default: claude-3-5-sonnet-latest
+        enum:
+          - claude-3-5-sonnet-latest|Claude 3.5 Sonnet
+    outputs:
+      answer:
+        title: en=Answer;ru=Ответ
+        type: string
+      json:
+        title: JSON
+        type: json
+    package: anthropic
+    script: |
+      const Anthropic = require('@anthropic-ai/sdk');
+
+      const ANTHROPIC_API_KEY = env?.variables?.get('ANTHROPIC_API_KEY');
+      if(!ANTHROPIC_API_KEY) {
+          error.fatal('Please, set your API key for Anthropic');
+      }
+
+      const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
+
+      (async () => {
+         const { model, question } = inputs;
+
+          const message = await client.messages.create({
+              max_tokens: 1024,
+              messages: [{ role: 'user', content: question }],
+              model
+          });
+
+          const { content: [{type, text: answer}] } = message;
+          log({type});
+          
+          switch(type) {
+              case "text":
+              default:
+                  try {
+                      const json = answer.replace(/^\`\`\`json\s*/ig, '').replace(/\`\`\`\s*$/ig, '');
+                      return next({outputs: { json: JSON.parse(json) }});
+                  } catch(e) {
+                      log(e);
+                      // plain text
+                  }
+                  return next({outputs: { answer }});
+          }
+      })();
+    source: catalog
+    title: en=Ask Claude;ru=Спросить Claude
+    version: 1

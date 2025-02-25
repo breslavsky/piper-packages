@@ -4,7 +4,7 @@ title: en=Process images;ru=Обработка изображений
 description: Change format, resize images, etc.
 readme: The first version
 author: Anton Breslavskii | https://github.com/breslavsky
-url: https://raw.githubusercontent.com/breslavsky/piper-packages/latest/packages/image_processing.yaml
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/image_processing.yaml
 nodes:
   resize_image:
     _id: resize_image

@@ -1,0 +1,86 @@
+_id: openai
+description: Includes Chat GPT
+readme: The first base version
+title: Open AI
+url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/openai.yaml
+version: 1
+nodes:
+  ask_chat_gpt:
+    _id: ask_chat_gpt
+    arrange:
+      x: 220
+      y: 140
+    category:
+      id: llm_agents
+      title: en=Language Agents;ru=Языковые агенты
+    environment:
+      OPEN_API_KEY:
+        title: Open API key
+        type: string
+        scope: global
+    inputs:
+      question:
+        order: 2
+        title: en=Question;ru=Вопрос
+        type: string
+        required: true
+        multiline: true
+      model:
+        order: 2
+        title: en=Model;ru=Модель
+        type: string
+        required: true
+        default: gpt-4o-mini
+        enum:
+          - gpt-4o-mini|4o mini
+          - gpt-4o|4o
+    outputs:
+      answer:
+        title: en=Answer;ru=Ответ
+        type: string
+      json:
+        title: JSON
+        type: json
+    package: openai
+    script: |
+      const OpenAI = require('openai');
+
+      const OPEN_API_KEY = env?.variables?.get('OPEN_API_KEY');
+      if(!OPEN_API_KEY) {
+          error.fatal('Please, set your API key for Open AI');
+      }
+
+      (async () => {
+         const { model, question } = inputs;
+
+          const openai = new OpenAI({
+              apiKey: OPEN_API_KEY,
+          });
+
+          const result = await openai.chat.completions.create({
+              model: model,
+              store: true,
+              messages: [
+                  {"role": "user", "content": question},
+              ],
+          });
+
+          const { content: answer } = result.choices[0].message;
+
+          try {
+              const json = answer.replace(/^\`\`\`json\s*/ig, '').replace(/\`\`\`\s*$/ig, '');
+              return next({outputs: { json: JSON.parse(json) }});
+          } catch(e) {
+              log(e);
+              // plain text
+          }
+
+          return next({outputs: { answer }});
+      })();
+    source: catalog
+    title: en=Ask Chat GPT;ru=Спросить Chat GPT
+    version: 1
+    costs: |-
+      (() => {
+          return 0.001;
+      })();
