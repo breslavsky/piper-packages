@@ -6,63 +6,6 @@ title: GPT for free
 url: https://raw.githubusercontent.com/breslavsky/piper-packages/main/packages/gpt4free.yaml
 version: 8
 nodes:
-  generate_image_using_gpt4free:
-    _id: generate_image_using_gpt4free
-    arrange:
-      x: 240
-      y: 160
-    category:
-      id: generate_images
-      title: Generate images
-    description: Free image generation using gpt4free
-    environment: {}
-    inputs:
-      prompt:
-        title: Prompt
-        type: string
-        required: true
-        multiline: true
-        default: cat at a moon
-      model:
-        title: Model
-        type: string
-        default: flux
-        enum:
-          - flux|Flux
-          - flux-pro|Flux Pro
-          - flux-dev|Flux Dev
-    outputs:
-      image:
-        title: Image
-        type: image
-      provider:
-        title: Provider
-        type: string
-    package: gpt4free
-    script: |
-      (async () => {
-
-          const { prompt, model } = inputs;
-
-          const {data: {provider, data: [{ b64_json }]}} = await httpClient({
-              method: 'post',
-              url: `http://${NODE_ENV === 'test' ? '0.0.0.0' : 'gpt4free'}:1337/v1/images/generate`,
-              timeout: 20000,
-              data: { 
-                  prompt,
-                  model: model || 'flux',
-                  response_format: 'b64_json'
-              },
-              headers: {
-                  'Content-Type': 'application/json',
-              }
-          });
-          return next({outputs: {image: Buffer.from(b64_json, 'base64'), provider}});
-      })();
-    title: Generate image for free
-    type: script
-    version: 5
-    source: catalog
   generate_image_gpt4free:
     _id: generate_image_gpt4free
     arrange:
